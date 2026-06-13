@@ -1,7 +1,7 @@
-import BM25
+# import BM25
 import bm25s
 import Stemmer
-import argparse
+# import argparse       both arent used here currently
 
 from pathlib import Path
 #from fastapi import FastAPI
@@ -88,7 +88,7 @@ def finalResults(results, scores, corpusText, corpusData):
     for i in range(results.shape[1]):
         doc, score = results[0, i], scores[0, i]
         print(f"\nRank {i+1} (score: {score:.2f}): {doc} \n")
-        #print('\n' + corpusText[doc])
+        print('\n' + corpusText[doc][:300] + ".*.*.*.")                    #spits out the text directly from documents
         print("Page number: " + str(corpusData[doc]))
 
 def main():
@@ -106,4 +106,5 @@ def main():
     finalResults(results, scores, corpus, pageNum)
     print("Done")
 
-main()
+if __name__ == "__main__":
+    main()
