@@ -36,7 +36,7 @@ make run
 py -3.12 -m venv .venv
 # If your default python interpreter is already 3.11, you may also use:
 # python -m venv .venv
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```

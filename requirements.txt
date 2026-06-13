@@ -7,6 +7,7 @@ scikit-learn==1.7.0
 networkx>=3.0
 numpy==2.3.0
 bm25s
+gliner
 fastapi==0.115.9
 sqlmodel==0.0.38
 uvicorn==0.34.3
@@ -20,4 +21,4 @@ watchfiles==1.2.0
 rapidocr==3.8.1
 pymupdf==1.27.2
 pillow==11.0.0
-sqlite3
+# sqlite3      alr built into python
