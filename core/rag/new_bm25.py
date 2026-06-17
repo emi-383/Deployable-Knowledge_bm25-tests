@@ -77,7 +77,7 @@ def tokenizeQuery(queryText):
 def ranker(queryTokens, corpusIndex):
     print("Ranking results...")
     #Shoves the queryTokens and the corpusTokens into the BM25 retriever to get ranked results
-    results, scores = corpusIndex.retrieve(queryTokens, k=10, sorted=True)
+    results, scores = corpusIndex.retrieve(queryTokens, k=25, sorted=True)
     
     return results, scores
 

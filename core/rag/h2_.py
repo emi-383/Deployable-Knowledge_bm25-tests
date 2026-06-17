@@ -1,5 +1,4 @@
 import numpy as np
-from pathlib import Path
 from gliner import GLiNER
 
 from core.rag.new_bm25 import getCorpus, tokenizeCorpus, tokenizeQuery, ranker
@@ -7,22 +6,20 @@ from core.rag.new_bm25 import getCorpus, tokenizeCorpus, tokenizeQuery, ranker
 
 '''
 TO RUN
-python -m core.rag.m_gliner-infer+bm25
+python -m core.rag.h2_bm25+gliner
+
+This file only for relex models
 '''
 
-''' This file only for relex models '''
+#model = GLiNER.from_pretrained("knowledgator/gliner-relex-large-v0.5")
 #model = GLiNER.from_pretrained("knowledgator/gliner-relex-large-v1.0")
-model = GLiNER.from_pretrained("knowledgator/gliner-relex-large-v0.5")
-#model = GLiNER.from_pretrained("knowledgator/gliner-relex-base-v1.0")
+model = GLiNER.from_pretrained("knowledgator/gliner-relex-base-v1.0")
 
-def generate_labels(user_query):
-    """Convert user query into both entity and relation target labels."""
-    
+def generate_labels(user_query):    
     base_entity_labels = ["Procedure", "Subject", "Equipment", "Technical Term", "Location", "Person"]
     base_relation_labels = ["Action", "Interaction", "Process", "Dependency", "Requirement", "Verb", "Ownership"]
     all_base_labels = base_entity_labels + base_relation_labels
 
-    #print(f"\nGenerating new labels from query") ##
     # Extract entities+relations from query for use as new labels
     entities_batch, _ = model.inference(
         texts=[user_query], 
@@ -68,7 +65,7 @@ def main():
     # Generate new target labels from user query
     new_entity_labels, new_relation_labels = generate_labels(input_query)
     
-    # Fetch document dataset & run BM25
+    # Get corpus & run BM25
     corpus, pageNum = getCorpus()
     corpusIndex = tokenizeCorpus(corpus)
     queryTokens = tokenizeQuery(input_query)
@@ -84,8 +81,7 @@ def main():
     else:
         top_doc_indices = np.array(bm25_results).flatten()
 
-    #print(f"\nGLiNER scanning the top ranked BM25 pages") ##
-    # GLiNER reranks top results from BM25
+    # Gliner reranks top results from bm25
     matches = []
     for doc_idx in top_doc_indices:
         # Pull text directly from original raw text
@@ -93,7 +89,6 @@ def main():
         page_text = str(corpus[doc_idx])
         page_no = pageNum[doc_idx]
 
-        # Extract entities+relations from text
         entities_batch, relations_batch = model.inference(
             texts=[page_text],              
             labels=new_entity_labels,       
@@ -120,10 +115,10 @@ def main():
             "snippet": page_text[:300].replace('\n', ' ')
         })
 
-    # Sort final matches by GLiNER score descending
+    # Sort final matches by gliner score descending
     matches.sort(key=lambda x: x["score"], reverse=True)
 
-    print(f"\n[mix GLiNER-Relex--v-infer -> BM25 -> GLiNER-Relex--v-infer]")
+    print(f"\n[hybrid2 BM25 -> GLiNER-Relex--v-infer]")
     for rank, match in enumerate(matches[:10], 1):
         print(f"\nRank {rank} (Extraction Strength: {match['score']:.2f}) -> Doc ID {match['doc_id']}")
         print(f"Page Number: {match['page']}")
